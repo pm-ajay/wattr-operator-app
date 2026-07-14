@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(osascript -e 'tell application \"Safari\" to set URL of document 1 to \\(URL of document 1\\)')",
+      "Bash(osascript -e 'tell application \"Safari\" to get URL of document 1')",
+      "Bash(osascript -e 'tell application \"Safari\" to set URL of document 1 to \"about:blank\"')",
+      "Bash(osascript -e 'tell application \"Safari\" to set URL of document 1 to \"http://localhost:8765/\"')",
+      "Bash(curl -sI http://localhost:8765/main.dart.js)",
+      "Bash(curl -s http://localhost:8765/ -o /dev/null -w \"root: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:8765/flutter_bootstrap.js -o /dev/null -w \"flutter_bootstrap.js: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:8765/main.dart.bootstrap.js -o /dev/null -w \"main.dart.bootstrap.js: %{http_code}\\\\n\")",
+      "Bash(system_profiler SPUSBDataType)",
+      "Bash(find / -maxdepth 6 -iname \"adb\" -type f)",
+      "Read(//Users/ajaykrishna/Library/**)",
+      "Read(//usr/local/share/**)",
+      "Bash(java -version)",
+      "Bash(mkdir -p ~/development/jdk)",
+      "Read(//Users/ajaykrishna/development/**)",
+      "Bash(curl -L -o jdk17.tar.gz \"https://api.adoptium.net/v3/binary/latest/17/ga/mac/aarch64/jdk/hotspot/normal/eclipse?project=jdk\")",
+      "Bash(tar xzf *)",
+      "Bash(mkdir -p ~/Library/Android/sdk/cmdline-tools)",
+      "Bash(curl -L -o cmdline-tools.zip \"https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip\")",
+      "Bash(unzip -q cmdline-tools.zip)",
+      "Bash(mv cmdline-tools *)",
+      "Bash(rm cmdline-tools.zip)",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "Bash(curl -s http://localhost:8765 -o /dev/null -w \"interim: %{http_code}\\\\n\")",
+      "Bash(pkill -f \"flutter_tools.snapshot run\")",
+      "Bash(curl -s http://localhost:8765 -o /dev/null -w \"web: %{http_code}\\\\n\")",
+      "Read(//private/tmp/**)"
+    ]
+  }
+}
