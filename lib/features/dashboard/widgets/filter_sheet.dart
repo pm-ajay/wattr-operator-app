@@ -95,17 +95,6 @@ class _FilterSheetContent extends ConsumerWidget {
                     ),
                 ],
               ),
-              if (filters.sectorId != null) ...[
-                const SizedBox(height: 20),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    notifier.clearSectorFilter();
-                    Navigator.of(context).pop();
-                  },
-                  icon: const Icon(Icons.close),
-                  label: const Text('Clear sector filter'),
-                ),
-              ],
             ],
           ),
         ),

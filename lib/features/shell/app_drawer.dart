@@ -106,11 +106,6 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Dashboard',
                     onTap: () => go('/'),
                   ),
-                  _NavItem(
-                    icon: Icons.location_on_outlined,
-                    label: 'My Sites / Sectors',
-                    onTap: () => go('/sites'),
-                  ),
                   const SizedBox(height: 20),
                   _SectionLabel('Alerts'),
                   _NavItem(

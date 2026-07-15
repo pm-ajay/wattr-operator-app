@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/dummy_data/providers.dart';
 import '../../core/models/pump_mode.dart';
 import '../../core/models/pump_status.dart';
+import '../../core/models/user_role.dart';
 import '../../core/theme/status_colors.dart';
 import '../../core/utils/time_ago.dart';
 import '../../shared/widgets/confirm_dialog.dart';
@@ -33,6 +34,7 @@ class PumpDetailScreen extends ConsumerWidget {
     }
 
     final mode = ref.watch(pumpModeProvider(pumpId));
+    final isJE = ref.watch(sessionProvider.select((s) => s.role)) == UserRole.je;
 
     return Scaffold(
       appBar: AppBar(title: Text(pump.displayLabel)),
@@ -91,6 +93,7 @@ class PumpDetailScreen extends ConsumerWidget {
           SectionCard(
             title: 'Status',
             children: [
+              if (isJE) _InfoRow(label: 'Operator', value: pump.operatorName),
               _InfoRow(label: 'Last Update', value: timeAgo(pump.lastUpdate)),
               _InfoRow(
                 label: 'Electricity Availability',

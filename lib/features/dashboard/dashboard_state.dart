@@ -4,7 +4,6 @@ import '../../core/dummy_data/providers.dart';
 import '../../core/models/pump.dart';
 import '../../core/models/pump_mode.dart';
 import '../../core/models/pump_status.dart';
-import '../../core/models/sector.dart';
 import '../../core/models/user_role.dart';
 
 enum DashboardStatusFilter { all, on, off, fault }
@@ -19,7 +18,6 @@ class DashboardFilters {
     this.statusFilter = DashboardStatusFilter.all,
     this.modeFilter = DashboardModeFilter.all,
     this.sort = DashboardSort.recency,
-    this.sectorId,
     this.operatorId,
   });
 
@@ -27,7 +25,6 @@ class DashboardFilters {
   final DashboardStatusFilter statusFilter;
   final DashboardModeFilter modeFilter;
   final DashboardSort sort;
-  final String? sectorId;
 
   /// JE-only: narrow the combined pump list down to one Operator's pumps.
   /// Meaningless (and ignored) while viewing as an Operator, since
@@ -39,7 +36,6 @@ class DashboardFilters {
     DashboardStatusFilter? statusFilter,
     DashboardModeFilter? modeFilter,
     DashboardSort? sort,
-    String? Function()? sectorId,
     String? Function()? operatorId,
   }) {
     return DashboardFilters(
@@ -47,7 +43,6 @@ class DashboardFilters {
       statusFilter: statusFilter ?? this.statusFilter,
       modeFilter: modeFilter ?? this.modeFilter,
       sort: sort ?? this.sort,
-      sectorId: sectorId != null ? sectorId() : this.sectorId,
       operatorId: operatorId != null ? operatorId() : this.operatorId,
     );
   }
@@ -69,20 +64,9 @@ class DashboardFiltersNotifier extends Notifier<DashboardFilters> {
 
   void setSort(DashboardSort sort) => state = state.copyWith(sort: sort);
 
-  void setSectorFilter(String? sectorId) => state = state.copyWith(sectorId: () => sectorId);
-
-  void clearSectorFilter() => state = state.copyWith(sectorId: () => null);
-
   void setOperatorFilter(String? operatorId) => state = state.copyWith(operatorId: () => operatorId);
 
   void clearOperatorFilter() => state = state.copyWith(operatorId: () => null);
-}
-
-class SectorGroup {
-  const SectorGroup({required this.sector, required this.pumps});
-
-  final Sector sector;
-  final List<Pump> pumps;
 }
 
 /// Pumps visible to the currently-previewed persona: an Operator sees only
@@ -95,13 +79,14 @@ final scopedPumpsProvider = Provider<List<Pump>>((ref) {
   return pumps.where((p) => p.operatorId == session.operatorId).toList();
 });
 
+/// The dashboard lists every visible pump directly — there's no sector or
+/// location grouping since that mapping doesn't exist for this deployment.
 final filteredPumpsProvider = Provider<List<Pump>>((ref) {
   final pumps = ref.watch(scopedPumpsProvider);
   final filters = ref.watch(dashboardFiltersProvider);
   final isJE = ref.watch(sessionProvider.select((s) => s.role)) == UserRole.je;
 
   var result = pumps.where((p) {
-    if (filters.sectorId != null && p.sectorId != filters.sectorId) return false;
     if (isJE && filters.operatorId != null && p.operatorId != filters.operatorId) return false;
     final matchesStatus = switch (filters.statusFilter) {
       DashboardStatusFilter.all => true,
@@ -122,34 +107,15 @@ final filteredPumpsProvider = Provider<List<Pump>>((ref) {
 
     if (filters.query.isEmpty) return true;
     final q = filters.query.toLowerCase();
-    return p.sectorName.toLowerCase().contains(q) || p.name.toLowerCase().contains(q);
+    return p.name.toLowerCase().contains(q);
   }).toList();
 
   result.sort((a, b) {
     if (filters.sort == DashboardSort.recency) return b.lastUpdate.compareTo(a.lastUpdate);
-    return '${a.sectorName}${a.name}'.compareTo('${b.sectorName}${b.name}');
+    return a.name.compareTo(b.name);
   });
 
   return result;
-});
-
-final groupedPumpsProvider = Provider<List<SectorGroup>>((ref) {
-  final filtered = ref.watch(filteredPumpsProvider);
-  final sectors = ref.watch(sectorsProvider);
-
-  final bySector = <String, List<Pump>>{};
-  for (final pump in filtered) {
-    bySector.putIfAbsent(pump.sectorId, () => []).add(pump);
-  }
-
-  final groups = <SectorGroup>[];
-  for (final sector in sectors) {
-    final pumps = bySector[sector.id];
-    if (pumps != null && pumps.isNotEmpty) {
-      groups.add(SectorGroup(sector: sector, pumps: pumps));
-    }
-  }
-  return groups;
 });
 
 class DashboardSummary {

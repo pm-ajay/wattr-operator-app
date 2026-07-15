@@ -28,7 +28,8 @@
       "Bash(curl -s http://localhost:8765 -o /dev/null -w \"interim: %{http_code}\\\\n\")",
       "Bash(pkill -f \"flutter_tools.snapshot run\")",
       "Bash(curl -s http://localhost:8765 -o /dev/null -w \"web: %{http_code}\\\\n\")",
-      "Read(//private/tmp/**)"
+      "Read(//private/tmp/**)",
+      "Bash(ioreg -p IOUSB -l)"
     ]
   }
 }

@@ -8,14 +8,11 @@ import '../models/pump_mode.dart';
 import '../models/pump_status.dart';
 import '../models/running_session.dart';
 import '../models/schedule.dart';
-import '../models/sector.dart';
 import '../models/threshold_settings.dart';
 import '../models/user_role.dart';
 import 'dummy_data_generator.dart';
 
 final _appDataProvider = Provider<DummyAppData>((ref) => generateDummyAppData());
-
-final sectorsProvider = Provider<List<Sector>>((ref) => ref.watch(_appDataProvider).sectors);
 
 final operatorsProvider = Provider<List<domain.Operator>>((ref) => ref.watch(_appDataProvider).operators);
 

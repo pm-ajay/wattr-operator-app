@@ -19,9 +19,6 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _searchController = TextEditingController();
-  // Sectors start expanded (fast at-a-glance status is the primary need);
-  // collapsing is an explicit per-sector opt-out, tracked here.
-  final _collapsedSectors = <String>{};
 
   @override
   void dispose() {
@@ -32,7 +29,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final summary = ref.watch(dashboardSummaryProvider);
-    final groups = ref.watch(groupedPumpsProvider);
+    final pumps = ref.watch(filteredPumpsProvider);
     final filters = ref.watch(dashboardFiltersProvider);
     final isJE = ref.watch(sessionProvider.select((s) => s.role)) == UserRole.je;
     final theme = Theme.of(context);
@@ -64,7 +61,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         controller: _searchController,
                         onChanged: (v) => ref.read(dashboardFiltersProvider.notifier).setQuery(v),
                         decoration: InputDecoration(
-                          hintText: 'Search by tower or sector',
+                          hintText: 'Search by tower name',
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: filters.query.isNotEmpty
                               ? IconButton(
@@ -90,8 +87,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             SliverToBoxAdapter(child: SummaryHeader(summary: summary)),
-            if (filters.sectorId != null ||
-                filters.statusFilter != DashboardStatusFilter.all ||
+            if (filters.statusFilter != DashboardStatusFilter.all ||
                 filters.modeFilter != DashboardModeFilter.all ||
                 (isJE && filters.operatorId != null))
               SliverToBoxAdapter(
@@ -115,12 +111,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           onDeleted: () =>
                               ref.read(dashboardFiltersProvider.notifier).setModeFilter(DashboardModeFilter.all),
                         ),
-                      if (filters.sectorId != null)
-                        Chip(
-                          avatar: const Icon(Icons.location_on, size: 16),
-                          label: Text('Sector: ${_sectorName(ref, filters.sectorId!)}'),
-                          onDeleted: () => ref.read(dashboardFiltersProvider.notifier).clearSectorFilter(),
-                        ),
                       if (isJE && filters.operatorId != null)
                         Chip(
                           avatar: const Icon(Icons.person_outline, size: 16),
@@ -131,7 +121,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
               ),
-            if (groups.isEmpty)
+            if (pumps.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
@@ -154,26 +144,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final group = groups[index];
-                      final isExpanded = !_collapsedSectors.contains(group.sector.id);
-                      return _SectorSection(
-                        title: group.sector.name,
-                        count: group.pumps.length,
-                        isExpanded: isExpanded,
-                        onToggle: () => setState(() {
-                          if (isExpanded) {
-                            _collapsedSectors.add(group.sector.id);
-                          } else {
-                            _collapsedSectors.remove(group.sector.id);
-                          }
-                        }),
-                        children: [
-                          for (final pump in group.pumps)
-                            PumpListTile(pump: pump, onTap: () => context.push('/pump/${pump.id}')),
-                        ],
-                      );
+                      final pump = pumps[index];
+                      return PumpListTile(pump: pump, onTap: () => context.push('/pump/${pump.id}'));
                     },
-                    childCount: groups.length,
+                    childCount: pumps.length,
                   ),
                 ),
               ),
@@ -197,68 +171,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         DashboardModeFilter.auto => 'Auto',
       };
 
-  String _sectorName(WidgetRef ref, String sectorId) {
-    final sectors = ref.read(sectorsProvider);
-    final matches = sectors.where((s) => s.id == sectorId);
-    return matches.isEmpty ? '' : matches.first.name;
-  }
-
   String _operatorName(WidgetRef ref, String operatorId) {
     final operators = ref.read(operatorsProvider);
     final matches = operators.where((o) => o.id == operatorId);
     return matches.isEmpty ? '' : matches.first.name;
-  }
-}
-
-class _SectorSection extends StatelessWidget {
-  const _SectorSection({
-    required this.title,
-    required this.count,
-    required this.isExpanded,
-    required this.onToggle,
-    required this.children,
-  });
-
-  final String title;
-  final int count;
-  final bool isExpanded;
-  final VoidCallback onToggle;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: onToggle,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                Icon(isExpanded ? Icons.expand_more : Icons.chevron_right, color: theme.colorScheme.outline),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text('$count', style: theme.textTheme.labelSmall),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (isExpanded) ...children,
-      ],
-    );
   }
 }

@@ -8,13 +8,11 @@ import '../../features/pump_detail/pump_detail_screen.dart';
 import '../../features/running_times/running_times_screen.dart';
 import '../../features/scheduling/schedules_list_screen.dart';
 import '../../features/settings/settings_screen.dart';
-import '../../features/shell/sites_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
-    GoRoute(path: '/sites', builder: (context, state) => const SitesScreen()),
     GoRoute(path: '/notifications', builder: (context, state) => const NotificationHistoryScreen()),
     GoRoute(
       path: '/notification-preferences',
