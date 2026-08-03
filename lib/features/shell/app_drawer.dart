@@ -125,6 +125,11 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Language',
                     onTap: () => push('/language'),
                   ),
+                  _NavItem(
+                    icon: Icons.palette_outlined,
+                    label: 'Theme',
+                    onTap: () => push('/theme'),
+                  ),
                 ],
               ),
             ),

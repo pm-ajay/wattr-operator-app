@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/app_language.dart';
+import '../models/app_theme_mode.dart';
 import '../models/notification_item.dart';
 import '../models/operator.dart' as domain;
 import '../models/pump.dart';
@@ -187,4 +188,17 @@ class PreferredLanguageNotifier extends Notifier<AppLanguage> {
   AppLanguage build() => AppLanguage.english;
 
   void select(AppLanguage language) => state = language;
+}
+
+/// Selection only — the app doesn't actually re-theme itself yet. This
+/// exists so the entry point is in place ahead of real theming work.
+final preferredThemeModeProvider = NotifierProvider<PreferredThemeModeNotifier, AppThemeMode>(
+  PreferredThemeModeNotifier.new,
+);
+
+class PreferredThemeModeNotifier extends Notifier<AppThemeMode> {
+  @override
+  AppThemeMode build() => AppThemeMode.system;
+
+  void select(AppThemeMode mode) => state = mode;
 }

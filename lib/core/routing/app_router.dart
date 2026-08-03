@@ -8,6 +8,7 @@ import '../../features/pump_detail/pump_detail_screen.dart';
 import '../../features/running_times/running_times_screen.dart';
 import '../../features/scheduling/schedules_list_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/theme/theme_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -19,6 +20,7 @@ final appRouter = GoRouter(
       builder: (context, state) => const NotificationPreferencesScreen(),
     ),
     GoRoute(path: '/language', builder: (context, state) => const LanguageScreen()),
+    GoRoute(path: '/theme', builder: (context, state) => const ThemeScreen()),
     GoRoute(
       path: '/pump/:id',
       builder: (context, state) => PumpDetailScreen(pumpId: state.pathParameters['id']!),
