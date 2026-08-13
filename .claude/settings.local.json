@@ -31,7 +31,9 @@
       "Read(//private/tmp/**)",
       "Bash(ioreg -p IOUSB -l)",
       "Bash(git fetch *)",
-      "Bash(git rev-list *)"
+      "Bash(git rev-list *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

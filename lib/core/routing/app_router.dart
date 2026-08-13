@@ -9,6 +9,7 @@ import '../../features/running_times/running_times_screen.dart';
 import '../../features/scheduling/schedules_list_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/theme/theme_screen.dart';
+import '../../features/wattr_bot/wattr_bot_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -21,6 +22,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/language', builder: (context, state) => const LanguageScreen()),
     GoRoute(path: '/theme', builder: (context, state) => const ThemeScreen()),
+    GoRoute(
+      path: '/wattr-bot',
+      builder: (context, state) => WattrBotScreen(pumpLabel: state.extra as String?),
+    ),
     GoRoute(
       path: '/pump/:id',
       builder: (context, state) => PumpDetailScreen(pumpId: state.pathParameters['id']!),

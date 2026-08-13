@@ -223,6 +223,10 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
 
       final operator = operators[pumpCounter % operators.length];
 
+      // Rough heuristic for a tubewell pump's discharge rate, loosely
+      // scaled off motor HP so bigger motors move more water.
+      final dischargeLps = double.parse((hp * (1.0 + rnd.nextDouble() * 0.8)).toStringAsFixed(1));
+
       final pump = Pump(
         id: id,
         imei: imei,
@@ -240,6 +244,7 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
         thresholds: thresholds,
         voltageHistory: voltageHistory,
         currentHistory: currentHistory,
+        dischargeLps: dischargeLps,
         recentAlert: recentAlert,
         isStale: minutesAgo > 30,
         activeScheduledRun: activeScheduledRun,

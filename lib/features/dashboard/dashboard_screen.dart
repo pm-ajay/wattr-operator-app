@@ -154,6 +154,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/wattr-bot'),
+        tooltip: 'Wattr Bot',
+        child: const Icon(Icons.chat_bubble_outline),
+      ),
     );
   }
 

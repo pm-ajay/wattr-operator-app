@@ -6,6 +6,7 @@ import '../../core/models/pump_mode.dart';
 import '../../shared/widgets/confirm_dialog.dart';
 import 'schedule_form_sheet.dart';
 import 'widgets/schedule_tile.dart';
+import 'widgets/water_calculator_sheet.dart';
 
 class SchedulesListScreen extends ConsumerWidget {
   const SchedulesListScreen({super.key, required this.pumpId});
@@ -17,14 +18,34 @@ class SchedulesListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final pumps = ref.watch(pumpsProvider);
     final matches = pumps.where((p) => p.id == pumpId);
-    final pumpLabel = matches.isEmpty ? '' : matches.first.displayLabel;
+    final pump = matches.isEmpty ? null : matches.first;
+    final pumpLabel = pump?.displayLabel ?? '';
 
     final schedules = ref.watch(schedulesProvider)[pumpId] ?? const [];
     final masterPaused = ref.watch(masterSchedulePauseProvider.select((m) => m[pumpId] ?? false));
     final isAutoMode = ref.watch(pumpModeProvider(pumpId)) == PumpMode.auto;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Schedules — $pumpLabel')),
+      appBar: AppBar(
+        title: Text('Schedules — $pumpLabel'),
+        actions: [
+          if (pump != null)
+            IconButton(
+              icon: const Icon(Icons.calculate_outlined),
+              tooltip: 'Water Volume Calculator',
+              onPressed: () async {
+                final minutes = await showWaterCalculatorSheet(
+                  context,
+                  pumpLabel: pump.displayLabel,
+                  dischargeLps: pump.dischargeLps,
+                );
+                if (minutes != null && context.mounted) {
+                  showScheduleFormSheet(context, pumpId: pumpId, initialDurationMinutes: minutes);
+                }
+              },
+            ),
+        ],
+      ),
       body: Column(
         children: [
           if (isAutoMode)

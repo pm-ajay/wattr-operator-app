@@ -19,6 +19,7 @@ Future<bool> showScheduleFormSheet(
   BuildContext context, {
   required String pumpId,
   Schedule? existing,
+  int? initialDurationMinutes,
 }) async {
   final result = await showModalBottomSheet<bool>(
     context: context,
@@ -26,17 +27,25 @@ Future<bool> showScheduleFormSheet(
     showDragHandle: true,
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: _ScheduleFormContent(pumpId: pumpId, existing: existing),
+      child: _ScheduleFormContent(
+        pumpId: pumpId,
+        existing: existing,
+        initialDurationMinutes: initialDurationMinutes,
+      ),
     ),
   );
   return result ?? false;
 }
 
 class _ScheduleFormContent extends ConsumerStatefulWidget {
-  const _ScheduleFormContent({required this.pumpId, this.existing});
+  const _ScheduleFormContent({required this.pumpId, this.existing, this.initialDurationMinutes});
 
   final String pumpId;
   final Schedule? existing;
+
+  /// Prefills Duration for a brand-new schedule — e.g. handed off from the
+  /// Water Volume Calculator. Ignored when editing an existing schedule.
+  final int? initialDurationMinutes;
 
   @override
   ConsumerState<_ScheduleFormContent> createState() => _ScheduleFormContentState();
@@ -44,8 +53,9 @@ class _ScheduleFormContent extends ConsumerStatefulWidget {
 
 class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
   late final _nameController = TextEditingController(text: widget.existing?.name ?? '');
-  late final _durationController =
-      TextEditingController(text: widget.existing?.duration.inMinutes.toString() ?? '');
+  late final _durationController = TextEditingController(
+    text: widget.existing?.duration.inMinutes.toString() ?? widget.initialDurationMinutes?.toString() ?? '',
+  );
   late final Set<int> _days = {...(widget.existing?.repeatDays ?? const <int>{})};
 
   // Nothing is pre-picked for a new schedule — the operator must explicitly

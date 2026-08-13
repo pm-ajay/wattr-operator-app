@@ -189,6 +189,11 @@ class PumpDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/wattr-bot', extra: pump.displayLabel),
+        tooltip: 'Wattr Bot',
+        child: const Icon(Icons.chat_bubble_outline),
+      ),
     );
   }
 

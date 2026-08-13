@@ -21,6 +21,7 @@ class Pump {
     required this.thresholds,
     required this.voltageHistory,
     required this.currentHistory,
+    required this.dischargeLps,
     this.recentAlert,
     this.isStale = false,
     this.activeScheduledRun,
@@ -52,6 +53,10 @@ class Pump {
   final List<double> voltageHistory;
   final List<double> currentHistory;
 
+  /// Water discharge rate while running, in liters per second — the basis
+  /// for the Water Volume Calculator on the Schedules screen.
+  final double dischargeLps;
+
   /// e.g. "Overvoltage detected 10 min ago" — null if nothing recent.
   final String? recentAlert;
 
@@ -82,6 +87,7 @@ class Pump {
       thresholds: thresholds ?? this.thresholds,
       voltageHistory: voltageHistory,
       currentHistory: currentHistory,
+      dischargeLps: dischargeLps,
       recentAlert: recentAlert,
       isStale: isStale ?? this.isStale,
       activeScheduledRun: activeScheduledRun,
