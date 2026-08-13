@@ -100,6 +100,7 @@ class SchedulesListScreen extends ConsumerWidget {
                         ScheduleTile(
                           schedule: schedule,
                           masterPaused: masterPaused,
+                          isRunningNow: pump?.activeScheduledRun?.scheduleId == schedule.id,
                           onToggleActive: (v) =>
                               ref.read(schedulesProvider.notifier).setActive(pumpId, schedule.id, v),
                           onEdit: () => showScheduleFormSheet(context, pumpId: pumpId, existing: schedule),

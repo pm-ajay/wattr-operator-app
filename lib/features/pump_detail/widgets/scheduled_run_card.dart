@@ -21,6 +21,21 @@ class ScheduledRunCard extends StatelessWidget {
     return SectionCard(
       title: 'Scheduled Run',
       subtitle: progress.scheduleName,
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.play_circle_fill, size: 12, color: theme.colorScheme.onPrimaryContainer),
+            const SizedBox(width: 4),
+            Text(
+              'Running Now',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: theme.colorScheme.onPrimaryContainer),
+            ),
+          ],
+        ),
+      ),
       children: [
         if (stoppedEarly)
           Container(

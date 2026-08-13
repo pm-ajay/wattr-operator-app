@@ -207,6 +207,7 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
         final target = chosen.duration.inMinutes;
         if (isFault) {
           activeScheduledRun = ScheduledRunProgress(
+            scheduleId: chosen.id,
             scheduleName: chosen.name,
             deliveredMinutes: (target * (0.2 + rnd.nextDouble() * 0.3)).round(),
             targetMinutes: target,
@@ -214,6 +215,7 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
           );
         } else if (status == PumpStatus.on) {
           activeScheduledRun = ScheduledRunProgress(
+            scheduleId: chosen.id,
             scheduleName: chosen.name,
             deliveredMinutes: (target * rnd.nextDouble()).round().clamp(0, target - 1),
             targetMinutes: target,

@@ -52,6 +52,18 @@ class Schedule {
     return startMinutes < other.endMinutes && other.startMinutes < endMinutes;
   }
 
+  /// Whether this schedule sits within [minGapMinutes] of [other] on a day
+  /// they share, even though the two don't overlap. Only considers the gap
+  /// within the same calendar day, not across a midnight boundary.
+  bool violatesMinGapWith(Schedule other, int minGapMinutes) {
+    if (repeatDays.intersection(other.repeatDays).isEmpty) return false;
+    if (overlapsWith(other)) return false;
+    final gap = endMinutes <= other.startMinutes
+        ? other.startMinutes - endMinutes
+        : startMinutes - other.endMinutes;
+    return gap < minGapMinutes;
+  }
+
   /// Minutes from [now] until this schedule's next start time, considering
   /// repeat days. Returns null if [repeatDays] is empty.
   int? minutesUntilNext(DateTime now) {

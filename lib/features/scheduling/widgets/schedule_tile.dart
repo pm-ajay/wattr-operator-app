@@ -11,6 +11,7 @@ class ScheduleTile extends StatelessWidget {
     required this.onToggleActive,
     required this.onEdit,
     required this.onDelete,
+    this.isRunningNow = false,
   });
 
   final Schedule schedule;
@@ -18,6 +19,11 @@ class ScheduleTile extends StatelessWidget {
   final ValueChanged<bool> onToggleActive;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+
+  /// True when this is the specific schedule currently executing on the
+  /// pump — distinct from "Active" (enabled), which just means it's
+  /// configured to run at its next scheduled time.
+  final bool isRunningNow;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +39,31 @@ class ScheduleTile extends StatelessWidget {
             Expanded(
               child: Text(schedule.name, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
             ),
+            if (isRunningNow) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_circle_fill, size: 12, color: theme.colorScheme.onPrimaryContainer),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Running Now',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(

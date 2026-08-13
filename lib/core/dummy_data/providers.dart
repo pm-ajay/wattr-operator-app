@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants/schedule_limits.dart';
 import '../models/app_language.dart';
 import '../models/app_theme_mode.dart';
 import '../models/notification_item.dart';
@@ -85,11 +86,17 @@ class SchedulesNotifier extends Notifier<Map<String, List<Schedule>>> {
   List<Schedule> forPump(String pumpId) => state[pumpId] ?? const [];
 
   /// Returns the first existing active schedule (other than [excludingId])
-  /// for the same pump that overlaps [candidate], or null if none conflict.
-  Schedule? findOverlap(Schedule candidate, {String? excludingId}) {
+  /// for the same pump that conflicts with [candidate] — either overlapping
+  /// it outright, or falling within the minimum required gap of it — or
+  /// null if none conflict. Overlaps are checked first since they're the
+  /// stricter violation.
+  ({Schedule schedule, bool isGapViolation})? findConflict(Schedule candidate, {String? excludingId}) {
     final existing = forPump(candidate.pumpId).where((s) => s.active && s.id != excludingId);
     for (final s in existing) {
-      if (s.overlapsWith(candidate)) return s;
+      if (s.overlapsWith(candidate)) return (schedule: s, isGapViolation: false);
+    }
+    for (final s in existing) {
+      if (s.violatesMinGapWith(candidate, scheduleMinGapMinutes)) return (schedule: s, isGapViolation: true);
     }
     return null;
   }
@@ -201,4 +208,16 @@ class PreferredThemeModeNotifier extends Notifier<AppThemeMode> {
   AppThemeMode build() => AppThemeMode.system;
 
   void select(AppThemeMode mode) => state = mode;
+}
+
+/// Demo-only toggle for previewing the offline banner — not driven by any
+/// real connectivity check. Flip it from the drawer to see how the app
+/// behaves when data can't be trusted as current.
+final isOfflineProvider = NotifierProvider<IsOfflineNotifier, bool>(IsOfflineNotifier.new);
+
+class IsOfflineNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setOffline(bool value) => state = value;
 }

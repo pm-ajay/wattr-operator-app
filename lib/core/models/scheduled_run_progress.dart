@@ -2,12 +2,16 @@
 /// Set to null on a Pump when no scheduled session is actively running.
 class ScheduledRunProgress {
   const ScheduledRunProgress({
+    required this.scheduleId,
     required this.scheduleName,
     required this.deliveredMinutes,
     required this.targetMinutes,
     this.stoppedEarlyReason,
   });
 
+  /// Which configured [Schedule] this run belongs to — lets the Schedules
+  /// List screen mark the one that's currently executing.
+  final String scheduleId;
   final String scheduleName;
   final int deliveredMinutes;
   final int targetMinutes;

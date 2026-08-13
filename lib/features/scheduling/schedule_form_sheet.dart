@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/schedule_limits.dart';
 import '../../core/dummy_data/providers.dart';
 import '../../core/models/schedule.dart';
 
@@ -130,6 +131,15 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
 
   String _formatTimeWithPeriod(TimeOfDay t) => '${_timeOfDayLabel(t)} · ${_formatTime(t)}';
 
+  String? _durationErrorFor(int? minutes) {
+    if (minutes == null || minutes <= 0) return 'Enter minutes greater than 0';
+    if (minutes < scheduleMinDurationMinutes) return 'Minimum run duration is $scheduleMinDurationMinutes min';
+    if (minutes > scheduleMaxDurationMinutes) {
+      return 'Maximum run duration is ${scheduleMaxDurationMinutes ~/ 60} hr';
+    }
+    return null;
+  }
+
   void _save() {
     final name = _nameController.text.trim();
     final duration = int.tryParse(_durationController.text);
@@ -139,7 +149,7 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
       _nameError = name.isEmpty ? 'Enter a schedule name' : null;
       _daysError = _days.isEmpty ? 'Select at least one day' : null;
       _startTimeError = startTime == null ? 'Select a start time' : null;
-      _durationError = (duration == null || duration <= 0) ? 'Enter minutes greater than 0' : null;
+      _durationError = _durationErrorFor(duration);
       _overlapError = null;
     });
     if (_nameError != null || _daysError != null || _startTimeError != null || _durationError != null) return;
@@ -156,11 +166,13 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
 
     final conflict = ref
         .read(schedulesProvider.notifier)
-        .findOverlap(candidate, excludingId: widget.existing?.id);
+        .findConflict(candidate, excludingId: widget.existing?.id);
     if (conflict != null) {
+      final other = conflict.schedule;
       setState(() {
-        _overlapError =
-            'Overlaps with "${conflict.name}" (${conflict.repeatSummary}, ${conflict.timeRangeLabel}). Adjust the days or time and try again.';
+        _overlapError = conflict.isGapViolation
+            ? 'Too close to "${other.name}" (${other.repeatSummary}, ${other.timeRangeLabel}) — schedules on the same pump need at least $scheduleMinGapMinutes min between them. Adjust the days or time and try again.'
+            : 'Overlaps with "${other.name}" (${other.repeatSummary}, ${other.timeRangeLabel}). Adjust the days or time and try again.';
       });
       return;
     }
@@ -263,6 +275,9 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
                       suffixText: 'min',
                       isDense: true,
                       errorText: _durationError,
+                      helperText: _durationError == null
+                          ? '$scheduleMinDurationMinutes min – ${scheduleMaxDurationMinutes ~/ 60} hr'
+                          : null,
                     ),
                   ),
                 ),

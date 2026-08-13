@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/dummy_data/providers.dart';
+import '../../core/models/pump.dart';
 import '../../core/models/pump_mode.dart';
 import '../../core/models/pump_status.dart';
 import '../../core/models/user_role.dart';
@@ -37,7 +38,13 @@ class PumpDetailScreen extends ConsumerWidget {
     final isJE = ref.watch(sessionProvider.select((s) => s.role)) == UserRole.je;
 
     return Scaffold(
-      appBar: AppBar(title: Text(pump.displayLabel)),
+      appBar: AppBar(
+        title: Text(pump.displayLabel),
+        actions: [
+          _StatusIconRow(pump: pump),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         children: [
@@ -213,6 +220,56 @@ class PumpDetailScreen extends ConsumerWidget {
     } else {
       notifier.setOn(pumpId);
     }
+  }
+}
+
+/// Independent status badges for the app bar — each appears only when its
+/// own condition holds, so a viewer can tell at a glance which of several
+/// unrelated things (running, a fault, stale data) apply right now, rather
+/// than inferring them all from one combined color.
+class _StatusIconRow extends StatelessWidget {
+  const _StatusIconRow({required this.pump});
+
+  final Pump pump;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final badges = <Widget>[
+      if (pump.status.isOn)
+        _StatusIcon(icon: Icons.bolt, color: StatusColors.good, tooltip: 'Running'),
+      if (pump.recentAlert != null)
+        _StatusIcon(icon: Icons.warning_amber_rounded, color: StatusColors.warn, tooltip: pump.recentAlert!),
+      if (pump.isStale)
+        _StatusIcon(icon: Icons.cloud_off, color: theme.colorScheme.error, tooltip: 'No connectivity'),
+    ];
+    if (badges.isEmpty) return const SizedBox.shrink();
+    return Row(mainAxisSize: MainAxisSize.min, children: badges);
+  }
+}
+
+class _StatusIcon extends StatelessWidget {
+  const _StatusIcon({required this.icon, required this.color, required this.tooltip});
+
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Tooltip(
+        message: tooltip,
+        child: Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+          child: Icon(icon, size: 18, color: color),
+        ),
+      ),
+    );
   }
 }
 

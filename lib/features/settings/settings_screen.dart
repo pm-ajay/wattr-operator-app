@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/constants/schedule_limits.dart';
 import '../../core/dummy_data/providers.dart';
 import '../../core/models/threshold_settings.dart';
 import '../../shared/widgets/section_card.dart';
@@ -51,7 +52,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final autoMaxDuration = int.tryParse(_autoMaxDuration.text);
 
     if (autoDelay == null || autoDelay < 0) errors['autoDelay'] = 'Cannot be negative';
-    if (autoMaxDuration == null || autoMaxDuration <= 0) errors['autoMaxDuration'] = 'Enter a positive number of minutes';
+    if (autoMaxDuration == null || autoMaxDuration <= 0) {
+      errors['autoMaxDuration'] = 'Enter a positive number of minutes';
+    } else if (autoMaxDuration < scheduleMinDurationMinutes) {
+      errors['autoMaxDuration'] = 'Minimum is $scheduleMinDurationMinutes min';
+    } else if (autoMaxDuration > scheduleMaxDurationMinutes) {
+      errors['autoMaxDuration'] = 'Maximum is ${scheduleMaxDurationMinutes ~/ 60} hr';
+    }
 
     return errors;
   }
@@ -155,7 +162,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               LabeledNumberField(
                 label: 'Auto Max Duration',
-                description: 'Maximum time the pump is allowed to run continuously.',
+                description:
+                    'Maximum time the pump is allowed to run continuously. '
+                    '$scheduleMinDurationMinutes min – ${scheduleMaxDurationMinutes ~/ 60} hr.',
                 controller: _autoMaxDuration,
                 suffixText: 'min',
                 errorText: _errors['autoMaxDuration'],

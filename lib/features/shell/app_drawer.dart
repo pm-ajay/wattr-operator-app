@@ -15,6 +15,7 @@ class AppDrawer extends ConsumerWidget {
     final theme = Theme.of(context);
     final session = ref.watch(sessionProvider);
     final operators = ref.watch(operatorsProvider);
+    final isOffline = ref.watch(isOfflineProvider);
     final currentOperatorMatches = operators.where(
       (o) => o.id == session.operatorId,
     );
@@ -118,6 +119,11 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Notification Preferences',
                     onTap: () => push('/notification-preferences'),
                   ),
+                  _NavItem(
+                    icon: Icons.notifications_active_outlined,
+                    label: 'Running Notification Preview',
+                    onTap: () => push('/running-notification-preview'),
+                  ),
                   const SizedBox(height: 20),
                   _SectionLabel('Preferences'),
                   _NavItem(
@@ -129,6 +135,20 @@ class AppDrawer extends ConsumerWidget {
                     icon: Icons.palette_outlined,
                     label: 'Theme',
                     onTap: () => push('/theme'),
+                  ),
+                  _NavItem(
+                    icon: Icons.verified_user_outlined,
+                    label: 'App Permissions',
+                    onTap: () => push('/permissions'),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    secondary: Icon(Icons.wifi_off_outlined, color: theme.colorScheme.primary),
+                    title: const Text('Simulate Offline Mode'),
+                    subtitle: const Text('Preview the no-internet banner — not a real connectivity check.'),
+                    value: isOffline,
+                    onChanged: (v) => ref.read(isOfflineProvider.notifier).setOffline(v),
                   ),
                 ],
               ),
@@ -144,7 +164,7 @@ class AppDrawer extends ConsumerWidget {
                   _NavItem(
                     icon: Icons.help_outline,
                     label: 'Support',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => push('/support'),
                   ),
                   _NavItem(
                     icon: Icons.logout,
