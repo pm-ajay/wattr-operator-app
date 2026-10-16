@@ -20,12 +20,13 @@ String _timeOfDayLabel(TimeOfDay t) {
 
 const _stepTitles = ['Days', 'Start Time', 'Duration', 'End Time', 'Name', 'Summary'];
 
+// Water supply pumps typically run long sessions, so presets jump
+// straight to half-day-scale durations rather than short bursts.
 const List<({String label, int minutes})> _durationPresets = [
-  (label: '15 min', minutes: 15),
-  (label: '30 min', minutes: 30),
-  (label: '45 min', minutes: 45),
-  (label: '1 hr', minutes: 60),
-  (label: '2 hr', minutes: 120),
+  (label: '4 hr', minutes: 240),
+  (label: '6 hr', minutes: 360),
+  (label: '8 hr', minutes: 480),
+  (label: '10 hr', minutes: 600),
 ];
 
 Future<bool> showScheduleFormSheet(
@@ -607,6 +608,32 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
     );
   }
 
+  Widget _buildStartAndDurationReference(ThemeData theme) {
+    final start = _startTime;
+    final minutes = _durationMinutes;
+    final startLabel = start != null ? _formatTimeWithPeriod(start) : 'Not set';
+    final durationLabel = minutes != null && minutes > 0 ? formatDurationLabel(minutes) : 'Not set';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, size: 16, color: theme.colorScheme.outline),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Start: $startLabel  ·  Duration: $durationLabel',
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEndTimeStep(ThemeData theme) {
     return Column(
       key: const ValueKey('step-end'),
@@ -619,6 +646,8 @@ class _ScheduleFormContentState extends ConsumerState<_ScheduleFormContent> {
           'Optional. This is a safety cutoff, not the normal end time.',
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
         ),
+        const SizedBox(height: 10),
+        _buildStartAndDurationReference(theme),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: _hardStopEnabled,
