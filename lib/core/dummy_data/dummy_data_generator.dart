@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart' show TimeOfDay;
 
+import '../models/calibration_settings.dart';
 import '../models/electrical_reading.dart';
 import '../models/notification_item.dart';
 import '../models/operator.dart' as domain;
@@ -42,6 +43,14 @@ const _operatorNames = [
   'Ravinder Singh',
   'Simran Kaur',
   'Harpreet Bhatia',
+];
+
+const _operatorPhones = [
+  '+91 98765 43210',
+  '+91 91234 56780',
+  '+91 99887 76655',
+  '+91 90011 22334',
+  '+91 97001 23456',
 ];
 
 const _scheduleNamePool = [
@@ -96,7 +105,8 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
   ];
 
   final operators = [
-    for (var i = 0; i < _operatorNames.length; i++) domain.Operator(id: 'op_$i', name: _operatorNames[i]),
+    for (var i = 0; i < _operatorNames.length; i++)
+      domain.Operator(id: 'op_$i', name: _operatorNames[i], phone: _operatorPhones[i]),
   ];
 
   final pumps = <Pump>[];
@@ -229,6 +239,14 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
       // scaled off motor HP so bigger motors move more water.
       final dischargeLps = double.parse((hp * (1.0 + rnd.nextDouble() * 0.8)).toStringAsFixed(1));
 
+      final outputCurrentAmps = double.parse(((thresholds.iMin + thresholds.iMax) / 2).toStringAsFixed(2));
+      final calibration = CalibrationSettings(
+        outputCurrentAmps: outputCurrentAmps,
+        currentMultiplier: CalibrationSettings.multiplierFor(outputCurrentAmps),
+        voltageSetPoints: {for (final p in Phase.values) p: (thresholds.vMin + thresholds.vMax) / 2},
+        currentSetPoints: {for (final p in Phase.values) p: (thresholds.iMin + thresholds.iMax) / 2},
+      );
+
       final pump = Pump(
         id: id,
         imei: imei,
@@ -247,6 +265,7 @@ DummyAppData generateDummyAppData({int seed = 42, DateTime? now}) {
         voltageHistory: voltageHistory,
         currentHistory: currentHistory,
         dischargeLps: dischargeLps,
+        calibration: calibration,
         recentAlert: recentAlert,
         isStale: minutesAgo > 30,
         activeScheduledRun: activeScheduledRun,

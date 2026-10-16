@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/schedule_limits.dart';
 import '../models/app_language.dart';
 import '../models/app_theme_mode.dart';
+import '../models/calibration_settings.dart';
+import '../models/discharge_reading.dart';
 import '../models/notification_item.dart';
 import '../models/operator.dart' as domain;
 import '../models/pump.dart';
@@ -71,6 +73,22 @@ class PumpsNotifier extends Notifier<List<Pump>> {
     state = [
       for (final pump in state)
         if (pump.id == id) pump.copyWith(thresholds: thresholds) else pump,
+    ];
+  }
+
+  void updateCalibration(String id, CalibrationSettings calibration) {
+    state = [
+      for (final pump in state)
+        if (pump.id == id) pump.copyWith(calibration: calibration) else pump,
+    ];
+  }
+
+  /// Records a new discharge reading and keeps [Pump.dischargeLps] — the
+  /// figure the Water Volume Calculator relies on — in sync with it.
+  void recordDischarge(String id, DischargeReading reading) {
+    state = [
+      for (final pump in state)
+        if (pump.id == id) pump.copyWith(lastDischargeReading: reading, dischargeLps: reading.lps) else pump,
     ];
   }
 }

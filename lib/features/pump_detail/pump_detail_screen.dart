@@ -41,6 +41,11 @@ class PumpDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(pump.displayLabel),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.fact_check_outlined),
+            tooltip: 'Device Info',
+            onPressed: () => context.push('/pump/$pumpId/verify'),
+          ),
           _StatusIconRow(pump: pump),
           const SizedBox(width: 8),
         ],

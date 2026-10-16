@@ -1,3 +1,5 @@
+import 'calibration_settings.dart';
+import 'discharge_reading.dart';
 import 'electrical_reading.dart';
 import 'pump_status.dart';
 import 'scheduled_run_progress.dart';
@@ -22,9 +24,11 @@ class Pump {
     required this.voltageHistory,
     required this.currentHistory,
     required this.dischargeLps,
+    required this.calibration,
     this.recentAlert,
     this.isStale = false,
     this.activeScheduledRun,
+    this.lastDischargeReading,
   });
 
   final String id;
@@ -54,8 +58,13 @@ class Pump {
   final List<double> currentHistory;
 
   /// Water discharge rate while running, in liters per second — the basis
-  /// for the Water Volume Calculator on the Schedules screen.
+  /// for the Water Volume Calculator on the Schedules screen. Kept in sync
+  /// with [lastDischargeReading] whenever a technician records a new one.
   final double dischargeLps;
+
+  /// Sensor calibration set points and CT scaling, configured by a
+  /// technician from the Verify Installation page.
+  final CalibrationSettings calibration;
 
   /// e.g. "Overvoltage detected 10 min ago" — null if nothing recent.
   final String? recentAlert;
@@ -65,11 +74,22 @@ class Pump {
   /// Live progress of an in-flight scheduled run, if one is currently running.
   final ScheduledRunProgress? activeScheduledRun;
 
+  /// Most recent flow-meter reading a technician recorded on-site, if any.
+  final DischargeReading? lastDischargeReading;
+
   String get maskedImei => '•' * (imei.length - 5) + imei.substring(imei.length - 5);
 
   String get displayLabel => '$name, $sectorName';
 
-  Pump copyWith({PumpStatus? status, DateTime? stateSince, ThresholdSettings? thresholds, bool? isStale}) {
+  Pump copyWith({
+    PumpStatus? status,
+    DateTime? stateSince,
+    ThresholdSettings? thresholds,
+    bool? isStale,
+    CalibrationSettings? calibration,
+    double? dischargeLps,
+    DischargeReading? lastDischargeReading,
+  }) {
     return Pump(
       id: id,
       imei: imei,
@@ -87,10 +107,12 @@ class Pump {
       thresholds: thresholds ?? this.thresholds,
       voltageHistory: voltageHistory,
       currentHistory: currentHistory,
-      dischargeLps: dischargeLps,
+      dischargeLps: dischargeLps ?? this.dischargeLps,
+      calibration: calibration ?? this.calibration,
       recentAlert: recentAlert,
       isStale: isStale ?? this.isStale,
       activeScheduledRun: activeScheduledRun,
+      lastDischargeReading: lastDischargeReading ?? this.lastDischargeReading,
     );
   }
 }

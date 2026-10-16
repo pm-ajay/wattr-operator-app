@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to photograph the flow meter when recording a discharge reading.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to attach a flow meter photo when recording a discharge reading.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used to tag discharge readings with the site's location.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

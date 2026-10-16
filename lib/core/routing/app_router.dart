@@ -7,6 +7,7 @@ import '../../features/notifications/notification_history_screen.dart';
 import '../../features/notifications/notification_preferences_screen.dart';
 import '../../features/permissions/permissions_screen.dart';
 import '../../features/pump_detail/pump_detail_screen.dart';
+import '../../features/pump_verification/pump_verification_screen.dart';
 import '../../features/running_times/running_times_screen.dart';
 import '../../features/scheduling/schedules_list_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -50,6 +51,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: 'schedules',
           builder: (context, state) => SchedulesListScreen(pumpId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'verify',
+          builder: (context, state) => PumpVerificationScreen(pumpId: state.pathParameters['id']!),
         ),
       ],
     ),
